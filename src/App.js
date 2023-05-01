@@ -1,26 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import CardList from "./components/card-list/card-list.component";
 import SearchBox from "./components/search-box/search-box.component";
 
 const App = () => {
   const [searchField, setSearchField] = useState("");
-  console.log(searchField);
+  const [title, setTitle] = useState("Monster Rolodex");
+  const [monsters, setMonsters] = useState([]);
+  const [filteredMonsters, setFilteredMonsters] = useState(monsters);
+  console.log("render");
+
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => response.json())
+      .then((users) => setMonsters(users));
+  }, []); // Pass empty array mean call this function once when function mounted
+
+  useEffect(() => {
+    const newFileteredMonsters = monsters.filter((monster) => {
+      return monster.name.toLowerCase().includes(searchField);
+    });
+    setFilteredMonsters(newFileteredMonsters);
+  }, [monsters, searchField]);
 
   const onSearchChange = (event) => {
     const searchString = event.target.value.toLowerCase();
     setSearchField(searchString);
   };
 
+  const onTitleChange = (event) => {
+    const searchString = event.target.value.toLowerCase();
+    setTitle(searchString);
+  };
+
   return (
     <div className="App">
-      <h1 className="app-title">Monsters Rolodex</h1>
+      <h1 className="app-title">{title}</h1>
       <SearchBox
         className="monster-search-box"
         onChangeHandler={onSearchChange}
         placeholder="Search monster"
       />
-      {/* <CardList monsters={filteredMonsters} /> */}
+      <br />
+      <SearchBox
+        className="title-search-box"
+        onChangeHandler={onTitleChange}
+        placeholder="Set Title"
+      />
+      <CardList monsters={filteredMonsters} />
     </div>
   );
 };
